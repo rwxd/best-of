@@ -38,14 +38,15 @@ func main() {
 	worst := GetWorst(runtimes)
 	avg := getAverage(runtimes)
 
-	printTime("Best", best, *outputFormat)
-	printTime("Worst", worst, *outputFormat)
-	printTime("Average", avg, *outputFormat)
+	formatString := getFormatString(*outputFormat)
+	printTime("Best", best, *outputFormat, formatString)
+	printTime("Worst", worst, *outputFormat, formatString)
+	printTime("Average", avg, *outputFormat, formatString)
 	if *percentile {
-		printTime("Median", getPercentile(runtimes, 50), *outputFormat)
-		printTime("90th percentile", getPercentile(runtimes, 90), *outputFormat)
-		printTime("95th percentile", getPercentile(runtimes, 95), *outputFormat)
-		printTime("99th percentile", getPercentile(runtimes, 99), *outputFormat)
+		printTime("Median", getPercentile(runtimes, 50), *outputFormat, formatString)
+		printTime("90th percentile", getPercentile(runtimes, 90), *outputFormat, formatString)
+		printTime("95th percentile", getPercentile(runtimes, 95), *outputFormat, formatString)
+		printTime("99th percentile", getPercentile(runtimes, 99), *outputFormat, formatString)
 	}
 }
 
@@ -152,6 +153,23 @@ func convertTime(duration time.Duration, format string) float64 {
 	}
 }
 
-func printTime(label string, duration time.Duration, format string) {
-	fmt.Printf("%s: %f %s\n", label, convertTime(duration, format), format)
+func getFormatString(format string) string {
+	switch format {
+	case "m":
+		return "minutes"
+	case "s":
+		return "seconds"
+	case "ms":
+		return "milliseconds"
+	case "ns":
+		return "nanoseconds"
+	default:
+		log.Fatal("Unknown output format: ", format)
+		flag.Usage()
+		return ""
+	}
+}
+
+func printTime(label string, duration time.Duration, format string, formatString string) {
+	fmt.Printf("%s: %f %s\n", label, convertTime(duration, format), formatString)
 }
