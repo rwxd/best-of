@@ -18,6 +18,7 @@ var (
 	supressOut   = flag.Bool("q", false, "Supress output of the command.")
 	concurrency  = flag.Int("c", 1, "Number of commands to run in parallel.")
 	percentile   = flag.Bool("p", false, "Print percentile values.")
+	waitTime     = flag.Duration("w", 0, "Wait time between runs.")
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 		return
 	}
 
-	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency)
+	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency, *waitTime)
 	sort.Slice(runtimes, func(i, j int) bool {
 		return runtimes[i] < runtimes[j]
 
@@ -50,7 +51,7 @@ func main() {
 	}
 }
 
-func runProgramm(args []string, numRuns int, quiet bool, concurrent int) []time.Duration {
+func runProgramm(args []string, numRuns int, quiet bool, concurrent int, waitTime time.Duration) []time.Duration {
 	runtimes := make([]time.Duration, numRuns)
 	program := args[0]
 	programArgs := args[1:]
@@ -62,6 +63,7 @@ func runProgramm(args []string, numRuns int, quiet bool, concurrent int) []time.
 		go func(i int) {
 			// Release the slot when we are done
 			defer func() { <-semaphore }()
+			time.Sleep(waitTime)
 			start := time.Now()
 			cmd := exec.Command(program, programArgs...)
 

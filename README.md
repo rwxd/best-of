@@ -62,3 +62,9 @@ Median: 0.031313 seconds
 95th percentile: 0.031873 seconds
 99th percentile: 0.032652 seconds
 ```
+
+Wait between runs with the `-w` flag (default 0).
+
+```bash
+best-of -w 3s -- grep -r "foo" .
+```
