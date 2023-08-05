@@ -32,19 +32,30 @@ func main() {
 
 	})
 
-	best := runtimes[0]
+	best := GetBest(runtimes)
+	worst := GetWorst(runtimes)
+	avg := getAverage(runtimes)
 
 	switch *outputFormat {
 	case "m":
-		fmt.Printf("Best time: %f minutes\n", best.Minutes())
+		fmt.Printf("Best: %f minutes\n", best.Minutes())
+		fmt.Printf("Worst: %f minutes\n", worst.Minutes())
+		fmt.Printf("Average: %f minutes\n", avg.Minutes())
 	case "s":
-		fmt.Printf("Best time: %f seconds\n", best.Seconds())
+		fmt.Printf("Best: %f seconds\n", best.Seconds())
+		fmt.Printf("Worst: %f seconds\n", worst.Seconds())
+		fmt.Printf("Average: %f seconds\n", avg.Seconds())
 	case "ms":
-		fmt.Printf("Best time: %f milliseconds\n", math.Pow10(3)*best.Seconds())
+		fmt.Printf("Best: %f milliseconds\n", math.Pow10(3)*best.Seconds())
+		fmt.Printf("Worst: %f milliseconds\n", math.Pow10(3)*worst.Seconds())
+		fmt.Printf("Average: %f milliseconds\n", math.Pow10(3)*avg.Seconds())
 	case "ns":
-		fmt.Printf("Best time: %f nanoseconds\n", math.Pow10(9)*best.Seconds())
+		fmt.Printf("Best: %f nanoseconds\n", math.Pow10(9)*best.Seconds())
+		fmt.Printf("Worst: %f nanoseconds\n", math.Pow10(9)*worst.Seconds())
+		fmt.Printf("Average: %f nanoseconds\n", math.Pow10(9)*avg.Seconds())
 	default:
 		log.Fatal("Unknown output format: ", *outputFormat)
+		flag.Usage()
 	}
 }
 
@@ -71,4 +82,33 @@ func runProgramm(args []string, numRuns int, quiet bool) []time.Duration {
 		runtimes[i] = time.Since(start)
 	}
 	return runtimes
+}
+
+func getAverage(runtimes []time.Duration) time.Duration {
+	avg := time.Duration(0)
+	for _, r := range runtimes {
+		avg += r
+	}
+	avg /= time.Duration(len(runtimes))
+	return avg
+}
+
+func GetBest(runtimes []time.Duration) time.Duration {
+	best := runtimes[0]
+	for _, r := range runtimes {
+		if r < best {
+			best = r
+		}
+	}
+	return best
+}
+
+func GetWorst(runtimes []time.Duration) time.Duration {
+	worst := runtimes[0]
+	for _, r := range runtimes {
+		if r > worst {
+			worst = r
+		}
+	}
+	return worst
 }
