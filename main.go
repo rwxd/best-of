@@ -17,6 +17,7 @@ var (
 	outputFormat = flag.String("o", "s", "Output format: m (minutes), s (seconds), ms (milliseconds), ns (nanoseconds)")
 	supressOut   = flag.Bool("q", false, "Supress output of the command.")
 	concurrency  = flag.Int("c", 1, "Number of commands to run in parallel.")
+	percentile   = flag.Bool("p", false, "Print percentile values.")
 )
 
 func main() {
@@ -37,26 +38,14 @@ func main() {
 	worst := GetWorst(runtimes)
 	avg := getAverage(runtimes)
 
-	switch *outputFormat {
-	case "m":
-		fmt.Printf("Best: %f minutes\n", best.Minutes())
-		fmt.Printf("Worst: %f minutes\n", worst.Minutes())
-		fmt.Printf("Average: %f minutes\n", avg.Minutes())
-	case "s":
-		fmt.Printf("Best: %f seconds\n", best.Seconds())
-		fmt.Printf("Worst: %f seconds\n", worst.Seconds())
-		fmt.Printf("Average: %f seconds\n", avg.Seconds())
-	case "ms":
-		fmt.Printf("Best: %f milliseconds\n", math.Pow10(3)*best.Seconds())
-		fmt.Printf("Worst: %f milliseconds\n", math.Pow10(3)*worst.Seconds())
-		fmt.Printf("Average: %f milliseconds\n", math.Pow10(3)*avg.Seconds())
-	case "ns":
-		fmt.Printf("Best: %f nanoseconds\n", math.Pow10(9)*best.Seconds())
-		fmt.Printf("Worst: %f nanoseconds\n", math.Pow10(9)*worst.Seconds())
-		fmt.Printf("Average: %f nanoseconds\n", math.Pow10(9)*avg.Seconds())
-	default:
-		log.Fatal("Unknown output format: ", *outputFormat)
-		flag.Usage()
+	printTime("Best", best, *outputFormat)
+	printTime("Worst", worst, *outputFormat)
+	printTime("Average", avg, *outputFormat)
+	if *percentile {
+		printTime("Median", getPercentile(runtimes, 50), *outputFormat)
+		printTime("90th percentile", getPercentile(runtimes, 90), *outputFormat)
+		printTime("95th percentile", getPercentile(runtimes, 95), *outputFormat)
+		printTime("99th percentile", getPercentile(runtimes, 99), *outputFormat)
 	}
 }
 
@@ -84,8 +73,13 @@ func runProgramm(args []string, numRuns int, quiet bool, concurrent int) []time.
 			}
 
 			if err := cmd.Run(); err != nil {
-				log.Fatal("Failed to run command: ", err)
+				if _, ok := err.(*exec.ExitError); ok {
+					fmt.Printf("Command %s exited with error: %s", program, err)
+				} else {
+					fmt.Printf("Failed to run command: %s", err)
+				}
 			}
+
 			runtimes[i] = time.Since(start)
 		}(i)
 	}
@@ -125,4 +119,39 @@ func GetWorst(runtimes []time.Duration) time.Duration {
 		}
 	}
 	return worst
+}
+
+func getPercentile(runtimes []time.Duration, percentile float64) time.Duration {
+	index := (percentile / 100) * float64(len(runtimes))
+	if index == float64(int64(index)) {
+		return runtimes[int(index)]
+	}
+	// Interpolation between two points
+	lower := runtimes[int(index)]
+	if lower == runtimes[len(runtimes)-1] {
+		return lower
+	}
+	upper := runtimes[int(index)+1]
+	return lower + time.Duration(float64((upper-lower).Nanoseconds())*(index-float64(int(index))))
+}
+
+func convertTime(duration time.Duration, format string) float64 {
+	switch format {
+	case "m":
+		return duration.Minutes()
+	case "s":
+		return duration.Seconds()
+	case "ms":
+		return math.Pow10(3) * duration.Seconds()
+	case "ns":
+		return math.Pow10(9) * duration.Seconds()
+	default:
+		log.Fatal("Unknown output format: ", format)
+		flag.Usage()
+		return 0
+	}
+}
+
+func printTime(label string, duration time.Duration, format string) {
+	fmt.Printf("%s: %f %s\n", label, convertTime(duration, format), format)
 }

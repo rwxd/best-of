@@ -49,3 +49,16 @@ Best: 0.030725 seconds
 Worst: 0.031578 seconds
 Average: 0.031138 seconds
 ```
+
+Get percentiles with the `-p` flag.
+
+```bash
+$ best-of -p -q -n 500 -- grep -r "foo" .
+Best: 0.030736 s
+Worst: 0.032986 s
+Average: 0.031279 s
+Median: 0.031227 s
+90th percentile: 0.031638 s
+95th percentile: 0.031779 s
+99th percentile: 0.032117 s
+```
