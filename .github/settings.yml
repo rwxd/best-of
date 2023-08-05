@@ -1,0 +1,5 @@
+---
+repository:
+  name: "best-of"
+  description: "`best-of` lets you check the runtime of program executions."
+  topics: "github, runtime, benchmark"
