@@ -16,6 +16,7 @@ var (
 	flagCount    = flag.Int("n", 10, "Number of times to run the command.")
 	outputFormat = flag.String("o", "s", "Output format: m (minutes), s (seconds), ms (milliseconds), ns (nanoseconds)")
 	supressOut   = flag.Bool("q", false, "Supress output of the command.")
+	concurrency  = flag.Int("c", 1, "Number of commands to run in parallel.")
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 		return
 	}
 
-	runtimes := runProgramm(args, *flagCount, *supressOut)
+	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency)
 	sort.Slice(runtimes, func(i, j int) bool {
 		return runtimes[i] < runtimes[j]
 
@@ -59,28 +60,41 @@ func main() {
 	}
 }
 
-func runProgramm(args []string, numRuns int, quiet bool) []time.Duration {
+func runProgramm(args []string, numRuns int, quiet bool, concurrent int) []time.Duration {
 	runtimes := make([]time.Duration, numRuns)
 	program := args[0]
 	programArgs := args[1:]
+	semaphore := make(chan bool, concurrent)
 
 	for i := 0; i < numRuns; i++ {
-		start := time.Now()
-		cmd := exec.Command(program, programArgs...)
+		// Wait for a free slot
+		semaphore <- true
+		go func(i int) {
+			// Release the slot when we are done
+			defer func() { <-semaphore }()
+			start := time.Now()
+			cmd := exec.Command(program, programArgs...)
 
-		if quiet {
-			cmd.Stdout = io.Discard
-			cmd.Stderr = io.Discard
-		} else {
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-		}
+			if quiet {
+				cmd.Stdout = io.Discard
+				cmd.Stderr = io.Discard
+			} else {
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+			}
 
-		if err := cmd.Run(); err != nil {
-			log.Fatal("Failed to run command: ", err)
-		}
-		runtimes[i] = time.Since(start)
+			if err := cmd.Run(); err != nil {
+				log.Fatal("Failed to run command: ", err)
+			}
+			runtimes[i] = time.Since(start)
+		}(i)
 	}
+
+	// Wait for all commands to finish
+	for i := 0; i < cap(semaphore); i++ {
+		semaphore <- true
+	}
+
 	return runtimes
 }
 

@@ -40,3 +40,12 @@ Best: 0.030725 seconds
 Worst: 0.031578 seconds
 Average: 0.031138 seconds
 ```
+
+Use concurrent executions with the `-c` flag (default 1).
+
+```bash
+$ best-of -c 10 -- grep -r "foo" .
+Best: 0.030725 seconds
+Worst: 0.031578 seconds
+Average: 0.031138 seconds
+```
