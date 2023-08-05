@@ -1,15 +1,11 @@
 ---
 on:
   push:
-    branches:
-      - "*"
     tags:
       - "v*.*.*"
 
 jobs:
   goreleaser:
-    needs:
-      - semantic-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
