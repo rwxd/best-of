@@ -8,7 +8,6 @@ import (
 	"math"
 	"os"
 	"os/exec"
-	"sort"
 	"time"
 )
 
@@ -30,10 +29,6 @@ func main() {
 	}
 
 	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency, *waitTime)
-	sort.Slice(runtimes, func(i, j int) bool {
-		return runtimes[i] < runtimes[j]
-
-	})
 
 	formatString := getFormatString(*outputFormat)
 	printTime("Best", GetBest(runtimes), *outputFormat, formatString)
