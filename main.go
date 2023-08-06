@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"sort"
 	"time"
 )
 
@@ -116,6 +117,9 @@ func getWorst(runtimes []time.Duration) time.Duration {
 }
 
 func getPercentile(runtimes []time.Duration, percentile float64) time.Duration {
+	sort.Slice(runtimes, func(i, j int) bool {
+		return runtimes[i] < runtimes[j]
+	})
 	index := (percentile / 100) * float64(len(runtimes))
 	if index == float64(int64(index)) {
 		return runtimes[int(index)]
