@@ -31,8 +31,8 @@ func main() {
 	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency, *waitTime)
 
 	formatString := getFormatString(*outputFormat)
-	printTime("Best", GetBest(runtimes), *outputFormat, formatString)
-	printTime("Worst", GetWorst(runtimes), *outputFormat, formatString)
+	printTime("Best", getBest(runtimes), *outputFormat, formatString)
+	printTime("Worst", getWorst(runtimes), *outputFormat, formatString)
 	printTime("Average", getAverage(runtimes), *outputFormat, formatString)
 	if *percentile {
 		printTime("Median", getPercentile(runtimes, 50), *outputFormat, formatString)
@@ -95,7 +95,7 @@ func getAverage(runtimes []time.Duration) time.Duration {
 	return avg
 }
 
-func GetBest(runtimes []time.Duration) time.Duration {
+func getBest(runtimes []time.Duration) time.Duration {
 	best := runtimes[0]
 	for _, r := range runtimes {
 		if r < best {
@@ -105,7 +105,7 @@ func GetBest(runtimes []time.Duration) time.Duration {
 	return best
 }
 
-func GetWorst(runtimes []time.Duration) time.Duration {
+func getWorst(runtimes []time.Duration) time.Duration {
 	worst := runtimes[0]
 	for _, r := range runtimes {
 		if r > worst {
