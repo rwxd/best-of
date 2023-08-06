@@ -35,14 +35,10 @@ func main() {
 
 	})
 
-	best := GetBest(runtimes)
-	worst := GetWorst(runtimes)
-	avg := getAverage(runtimes)
-
 	formatString := getFormatString(*outputFormat)
-	printTime("Best", best, *outputFormat, formatString)
-	printTime("Worst", worst, *outputFormat, formatString)
-	printTime("Average", avg, *outputFormat, formatString)
+	printTime("Best", GetBest(runtimes), *outputFormat, formatString)
+	printTime("Worst", GetWorst(runtimes), *outputFormat, formatString)
+	printTime("Average", getAverage(runtimes), *outputFormat, formatString)
 	if *percentile {
 		printTime("Median", getPercentile(runtimes, 50), *outputFormat, formatString)
 		printTime("90th percentile", getPercentile(runtimes, 90), *outputFormat, formatString)
