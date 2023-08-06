@@ -4,7 +4,7 @@
 
 ## Installation
 
-Go to the [releases page](https://github.com/rwxd/best-of/releases) and dowload the latest binary for your system.
+Go to the [releases page](https://github.com/rwxd/best-of/releases) and download the latest binary for your system.
 
 Or use `go install`:
 
