@@ -19,6 +19,7 @@ var (
 	concurrency  = flag.Int("c", 1, "Number of commands to run in parallel.")
 	percentile   = flag.Bool("p", false, "Print percentile values.")
 	waitTime     = flag.Duration("w", 0, "Wait time between runs.")
+	progress     = flag.Bool("progress", false, "Show progress bar.")
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 		return
 	}
 
-	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency, *waitTime)
+	runtimes := runProgramm(args, *flagCount, *supressOut, *concurrency, *waitTime, *progress)
 
 	formatString := getFormatString(*outputFormat)
 	printTime("Best", getBest(runtimes), *outputFormat, formatString)
@@ -43,7 +44,7 @@ func main() {
 	}
 }
 
-func runProgramm(args []string, numRuns int, quiet bool, concurrent int, waitTime time.Duration) []time.Duration {
+func runProgramm(args []string, numRuns int, quiet bool, concurrent int, waitTime time.Duration, progressBar bool) []time.Duration {
 	runtimes := make([]time.Duration, numRuns)
 	program := args[0]
 	programArgs := args[1:]
@@ -76,6 +77,9 @@ func runProgramm(args []string, numRuns int, quiet bool, concurrent int, waitTim
 			}
 
 			runtimes[i] = time.Since(start)
+			if progressBar {
+				drawProgressBar(i+1, numRuns)
+			}
 		}(i)
 	}
 
@@ -169,4 +173,24 @@ func getFormatString(format string) string {
 
 func printTime(label string, duration time.Duration, format string, formatString string) {
 	fmt.Printf("%s: %f %s\n", label, convertTime(duration, format), formatString)
+}
+
+func drawProgressBar(current int, total int) {
+	progressRatio := float64(current) / float64(total)
+	progress := int(progressRatio * 100)
+
+	var bar string
+	// for every 2% we add a "="
+	for i := 0; i < 50; i++ {
+		if i < progress/2 {
+			bar += "="
+		} else {
+			bar += " "
+		}
+	}
+
+	fmt.Printf("\r[%s] %d%%", bar, progress)
+	if current == total {
+		fmt.Println()
+	}
 }

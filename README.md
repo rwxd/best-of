@@ -68,3 +68,13 @@ Wait between runs with the `-w` flag (default 0).
 ```bash
 best-of -w 3s -- grep -r "foo" .
 ```
+
+Show a progress bar with the `--progress` flag.
+
+```bash
+$ best-of -q -n 100 --progress -- grep -r "foo" .
+[==================================================] 100%
+Best: 0.030471 seconds
+Worst: 0.033867 seconds
+Average: 0.031123 seconds
+```
