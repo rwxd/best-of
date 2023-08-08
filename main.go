@@ -50,6 +50,10 @@ func runProgramm(args []string, numRuns int, quiet bool, concurrent int, waitTim
 	programArgs := args[1:]
 	semaphore := make(chan bool, concurrent)
 
+	if progressBar {
+		drawProgressBar(0, numRuns)
+	}
+
 	for i := 0; i < numRuns; i++ {
 		// Wait for a free slot
 		semaphore <- true
