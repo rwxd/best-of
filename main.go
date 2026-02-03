@@ -65,7 +65,7 @@ func main() {
 	}
 
 	if *percentile {
-		results = append(results, 
+		results = append(results,
 			Result{"Median", getPercentile(runtimes, 50)},
 			Result{"90th percentile", getPercentile(runtimes, 90)},
 			Result{"95th percentile", getPercentile(runtimes, 95)},
@@ -75,7 +75,7 @@ func main() {
 
 	// Output results in the requested format
 	formatString := getFormatString(*outputFormat)
-	
+
 	if *json {
 		printJSON(results, *outputFormat)
 	} else if *csv {
@@ -239,7 +239,7 @@ func getFormatString(format string) string {
 func printResults(results []Result, format string, formatString string, useColors bool) {
 	for _, result := range results {
 		value := convertTime(result.Value, format)
-		
+
 		var labelColor, valueColor string
 		if useColors {
 			switch result.Label {
@@ -259,8 +259,8 @@ func printResults(results []Result, format string, formatString string, useColor
 				labelColor = colorBlue + colorBold
 				valueColor = colorBlue
 			}
-			
-			fmt.Printf("%s%s:%s %s%.6f%s %s\n", 
+
+			fmt.Printf("%s%s:%s %s%.6f%s %s\n",
 				labelColor, result.Label, colorReset,
 				valueColor, value, colorReset,
 				formatString)
@@ -297,7 +297,7 @@ func drawProgressBar(current int, total int, useColors bool) {
 
 	var bar string
 	barWidth := 50
-	
+
 	// for every 2% we add a character
 	for i := 0; i < barWidth; i++ {
 		if i < progress/2 {
@@ -316,7 +316,7 @@ func drawProgressBar(current int, total int, useColors bool) {
 	} else {
 		fmt.Printf("\r[%s] %d%%", bar, progress)
 	}
-	
+
 	if current == total {
 		fmt.Println()
 	}
