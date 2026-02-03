@@ -14,29 +14,8 @@ go install github.com/rwxd/best-of@latest
 
 ### NixOS / Nix
 
-Add to your `flake.nix`:
+Refer to https://github.com/rwxd/my-nixpkgs for the nix package.
 
-```nix
-{
-  inputs.best-of.url = "github:rwxd/best-of";
-  # Or use a specific version:
-  # inputs.best-of.url = "github:rwxd/best-of/v1.0.0";
-}
-```
-
-Then use in your configuration:
-
-```nix
-environment.systemPackages = [ inputs.best-of.packages.${system}.best-of ];
-```
-
-Or run directly:
-
-```bash
-nix run github:rwxd/best-of -- -n 3 grep -r "foo" .
-# Or use a specific version:
-# nix run github:rwxd/best-of/v1.0.0 -- -n 3 grep -r "foo" .
-```
 
 ## Usage
 
